@@ -58,7 +58,7 @@ class Temperature_model_builder ( object ) :
 
         '''
 
-        self.all_available_files = [ f for f in sorted ( os.listdir ( path_to_csvs ) , key = lambda d : d.split ( '_' ) [ -1 ] )  if os.path.isfile ( path_to_csvs + f ) ]
+        self.all_available_files = [ f for f in sorted ( os.listdir ( path_to_csvs ) , key = lambda d : d.split ( '_' ) [ -1 ] )  if os.path.isfile ( os.path.join ( path_to_csvs , f ) ) ]
         
         self.dt_start = datetime.datetime.strptime ( date_start , '%Y/%m/%d' ).date ( )
         
@@ -177,7 +177,7 @@ class Temperature_model_builder ( object ) :
                    
     def get_meta_data_from_first_file ( self ) :
             
-            with open ( self.path_to_csvs + self.available_files [ 0 ] , 'r+' ) as f :
+            with open ( os.path.join ( self.path_to_csvs , self.available_files [ 0 ] ) , 'r+' ) as f :
             
                 self.meta_data = [ row for row in f ]
                 
@@ -193,7 +193,7 @@ class Temperature_model_builder ( object ) :
        
     def check_resolution_n_get_range ( self ) :
 
-       self.rng_res = np.asarray ( [ self._get_range_resolotion ( self.path_to_csvs + f ) for f in self.available_files ] )
+       self.rng_res = np.asarray ( [ self._get_range_resolotion ( os.path.join ( self.path_to_csvs , f ) ) for f in self.available_files ] )
        
        if np.diff ( self.rng_res ).any ( ) :
            
@@ -238,7 +238,7 @@ class Temperature_model_builder ( object ) :
     
     def _get_rng ( self ) :
         
-        self.rng = np.asarray ( pd.read_csv ( self.path_to_csvs + self.available_files [ 0 ] , sep = ',' , header = 0  , skiprows = 5 , index_col=0 , nrows=0 ).columns.tolist() [ 5 : ] , dtype = 'float')
+        self.rng = np.asarray ( pd.read_csv ( os.path.join ( self.path_to_csvs , self.available_files [ 0 ] ) , sep = ',' , header = 0  , skiprows = 5 , index_col=0 , nrows=0 ).columns.tolist() [ 5 : ] , dtype = 'float')
         
            
     def get_daily_medians ( self , use_matlab = False ) :
@@ -253,7 +253,7 @@ class Temperature_model_builder ( object ) :
         
         for i , f in enumerate ( self.available_files ):
             
-            df = pd.read_csv ( self.path_to_csvs + f , skiprows = 5 , sep = ',' , header = 0 )
+            df = pd.read_csv ( os.path.join ( self.path_to_csvs , f ) , skiprows = 5 , sep = ',' , header = 0 )
             
             d = self.available_dts [ i ]
                        
@@ -300,7 +300,7 @@ class Temperature_model_builder ( object ) :
                    
     def _make_regression_signals_1 ( self ) :
         
-        sum_rel_diff = np.sqrt ( np.trapz ( self.relative_difference [ : , self.ref_ov >= 0.05  ] ** 2 , axis = 1 ) )
+        sum_rel_diff = np.sqrt ( np.trapezoid ( self.relative_difference [ : , self.ref_ov >= 0.05  ] ** 2 , axis = 1 ) )
         
         sum_rel_diff = np.repeat ( sum_rel_diff [ : , np.newaxis ] , len ( sum_rel_diff ) , axis = 1 )
         
