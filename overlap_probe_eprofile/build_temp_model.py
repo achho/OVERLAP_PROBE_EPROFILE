@@ -309,7 +309,7 @@ class Temperature_model_builder ( object ) :
                    
     def _make_regression_signals_1 ( self ) :
         
-        sum_rel_diff = np.sqrt ( np.trapz ( self.relative_difference [ : , self.ref_ov >= 0.05  ] ** 2 , axis = 1 ) )
+        sum_rel_diff = np.sqrt ( np.trapezoid ( self.relative_difference [ : , self.ref_ov >= 0.05  ] ** 2 , axis = 1 ) )
         
         sum_rel_diff = np.repeat ( sum_rel_diff [ : , np.newaxis ] , len ( sum_rel_diff ) , axis = 1 )
         
